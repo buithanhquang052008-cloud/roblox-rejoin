@@ -1,0 +1,8 @@
+{
+  "name": "roblox-rejoin",
+  "version": "1.0.0",
+  "bin": {
+    "roblox-rejoin": "./roblox-rejoin.cjs"
+  },
+  "type": "commonjs"
+}
