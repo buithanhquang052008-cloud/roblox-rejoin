@@ -1,4 +1,16 @@
 #!/usr/bin/env node
+const { execSync } = require("child_process");
+
+function ensure(pkg) {
+  try {
+    require.resolve(pkg);
+  } catch {
+    console.log(`📦 Installing ${pkg}...`);
+    execSync(`npm install -g ${pkg}`, { stdio: "inherit" });
+  }
+}
+
+["axios", "fs", "path"].forEach(ensure);
 const { execSync, exec } = require("child_process");
 function ensurePackages() {
   const requiredPackages = ["axios", "cli-table3", "figlet", "boxen", "screenshot-desktop"];
