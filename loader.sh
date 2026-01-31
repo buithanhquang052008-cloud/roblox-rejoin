@@ -1,40 +1,40 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -e
 
-echo "🚀 Roblox Rejoin Loader (Auto Fix)"
+echo "🚀 Roblox Rejoin Loader (SAFE MODE)"
 
-# ===== Cập nhật & cài dependency hệ thống =====
+# ===== Fix dpkg nếu bị lỗi trước đó =====
+dpkg --configure -a || true
+apt --fix-broken install -y || true
+
+# ===== Update nhẹ (KHÔNG upgrade) =====
 pkg update -y
-pkg upgrade -y
 
-echo "📦 Cài NodeJS, npm, sqlite..."
+# ===== Cài dependency cần thiết =====
 pkg install -y nodejs npm sqlite git
 
-# ===== Kiểm tra sqlite3 =====
+# ===== Check sqlite3 =====
 if ! command -v sqlite3 >/dev/null 2>&1; then
-  echo "❌ sqlite3 vẫn chưa có, cài lại..."
-  pkg install -y sqlite
-fi
-
-# ===== Kiểm tra node =====
-if ! command -v node >/dev/null 2>&1; then
-  echo "❌ NodeJS chưa cài!"
+  echo "❌ sqlite3 vẫn thiếu!"
   exit 1
 fi
 
-# ===== Vào thư mục tool =====
+# ===== Clone repo nếu chưa có =====
 TOOL_DIR="$HOME/roblox-rejoin"
 
 if [ ! -d "$TOOL_DIR" ]; then
-  echo "📥 Clone repo..."
   git clone https://github.com/buithanhquang052008-cloud/roblox-rejoin.git "$TOOL_DIR"
 fi
 
 cd "$TOOL_DIR"
 
-# ===== Cài npm packages =====
-echo "📦 Cài npm packages..."
+# ===== Cài npm package =====
 npm install --no-audit --no-fund
+
+chmod +x rejoin.cjs
+
+echo "✅ Setup xong – chạy tool"
+node rejoin.cjsnpm install --no-audit --no-fund
 
 # ===== Quyền chạy =====
 chmod +x rejoin.cjs
