@@ -1,40 +1,94 @@
-#!/usr/bin/env bash
+#!/data/data/com.termux/files/usr/bin/bash
 set -e
 
-echo "== Roblox Rejoin Loader (NO APT) =="
+echo "== Roblox Rejoin Loader (FINAL) =="
 
+REPO_URL="https://github.com/buithanhquang052008-cloud/roblox-rejoin"
 BASE="$HOME/roblox-rejoin"
+
 NODE_DIR="$HOME/.node"
 NODE_BIN="$NODE_DIR/bin/node"
+
 BIN_DIR="$HOME/.local/bin"
 REJOIN_CMD="$BIN_DIR/rejoin"
 
 # ===============================
-# 1. Detect arch
+# 0. Tạo thư mục cần thiết
 # ===============================
-ARCH=$(uname -m)
-case "$ARCH" in
-  aarch64) NODE_ARCH="linux-arm64" ;;
-  armv7l)  NODE_ARCH="linux-armv7l" ;;
-  x86_64)  NODE_ARCH="linux-x64" ;;
-  *)
-    echo "❌ Unsupported arch: $ARCH"
-    exit 1
-    ;;
-esac
+mkdir -p "$BIN_DIR"
 
 # ===============================
-# 2. Install Node binary
+# 1. Clone / Update repo
 # ===============================
-if [ ! -x "$NODE_BIN" ]; then
-  echo "⬇️ Installing Node.js ($NODE_ARCH)"
-  mkdir -p "$NODE_DIR"
-  cd "$NODE_DIR"
-  curl -L "https://nodejs.org/dist/v18.20.4/node-v18.20.4-$NODE_ARCH.tar.xz" \
-    | tar -xJ --strip-components=1
-  chmod +x "$NODE_BIN"
+if [ ! -d "$BASE/.git" ]; then
+  echo "📥 Clone repo..."
+  git clone "$REPO_URL" "$BASE"
+else
+  echo "🔄 Update repo..."
+  cd "$BASE"
+  git reset --hard
+  git pull
 fi
 
+# ===============================
+# 2. Cài Node.js Android (Termux)
+# ===============================
+if [ ! -x "$NODE_BIN" ]; then
+  echo "📦 Tải Node.js (Android – Termux)..."
+  mkdir -p "$NODE_DIR"
+  cd "$NODE_DIR"
+
+  ARCH=$(uname -m)
+  case "$ARCH" in
+    aarch64)
+      NODE_URL="https://github.com/termux/termux-packages/releases/download/nodejs-20.11.1/nodejs-v20.11.1-android-aarch64.tar.xz"
+      ;;
+    armv7l)
+      NODE_URL="https://github.com/termux/termux-packages/releases/download/nodejs-20.11.1/nodejs-v20.11.1-android-arm.tar.xz"
+      ;;
+    *)
+      echo "❌ Kiến trúc không hỗ trợ: $ARCH"
+      exit 1
+      ;;
+  esac
+
+  curl -fL "$NODE_URL" -o node.tar.xz
+  tar -xf node.tar.xz
+  rm node.tar.xz
+fi
+
+export PATH="$NODE_DIR/bin:$PATH"
+
+# ===============================
+# 3. npm install nếu thiếu
+# ===============================
+cd "$BASE"
+if [ ! -d node_modules ]; then
+  echo "📦 npm install..."
+  "$NODE_BIN" "$NODE_DIR/lib/node_modules/npm/bin/npm-cli.js" install
+fi
+
+# ===============================
+# 4. Tạo command `rejoin`
+# ===============================
+cat > "$REJOIN_CMD" <<EOF
+#!/data/data/com.termux/files/usr/bin/bash
+cd "$BASE"
+"$NODE_BIN" rejoin.cjs </dev/tty
+EOF
+
+chmod +x "$REJOIN_CMD"
+
+# add PATH nếu chưa có
+if ! echo "\$PATH" | grep -q "$BIN_DIR"; then
+  echo "export PATH=\"\$PATH:$BIN_DIR\"" >> ~/.bashrc
+fi
+
+echo "================================="
+echo "✅ CÀI ĐẶT HOÀN TẤT"
+echo "👉 Thoát Termux, mở lại"
+echo "👉 Gõ: rejoin"
+echo "================================="
 # ===============================
 # 3. Clone / Update repo
 # ===============================
