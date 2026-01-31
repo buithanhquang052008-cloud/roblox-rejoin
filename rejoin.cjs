@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import Database from "better-sqlite3";
 const { execSync, exec } = require("child_process");
 function ensurePackages() {
   const requiredPackages = ["axios", "cli-table3", "figlet", "boxen", "screenshot-desktop"];
@@ -472,23 +473,34 @@ Timestamp: ${systemInfo.timestamp}
       const cookiesPath = `/data/data/${packageName}/app_webview/Default/Cookies`;
       const sdcardPath = `/sdcard/cookies_temp_${Date.now()}.db`;
       
-      // 1️⃣ Copy file Cookies sang sdcard
-      try {
-        execSync(`cp "${cookiesPath}" "${sdcardPath}"`);
-      } catch {
-        // Thử với su nếu không có quyền
-        execSync(`su -c "cp '${cookiesPath}' '${sdcardPath}'"`);
-      }
-      
-      // 2️⃣ Sử dụng sqlite3 để query cookie
-      let cookieValue;
-      try {
-        const result = execSync(`sqlite3 "${sdcardPath}" "SELECT value FROM cookies WHERE name = '.ROBLOSECURITY' LIMIT 1"`).toString().trim();
-        
-        if (!result) {
-          console.error(`❌ [${packageName}] Không tìm được cookie ROBLOSECURITY trong database!`);
-          execSync(`rm -f "${sdcardPath}"`).catch(() => {});
-          return null;
+      let cookieValue = null;
+
+try {
+  if (!fs.existsSync(cookiesPath)) {
+    console.log(`❌ [${packageName}] Không tìm thấy file Cookies`);
+    return null;
+  }
+
+  const db = new Database(cookiesPath, { readonly: true });
+
+  const row = db
+    .prepare(
+      "SELECT value FROM cookies WHERE name = '.ROBLOSECURITY' LIMIT 1"
+    )
+    .get();
+
+  db.close();
+
+  if (!row?.value) {
+    console.log(`❌ [${packageName}] Không có cookie ROBLOSECURITY`);
+    return null;
+  }
+
+  cookieValue = row.value;
+} catch (err) {
+  console.error(`❌ [${packageName}] Lỗi khi đọc cookies DB: ${err.message}`);
+  return null;
+}
         }
         
         cookieValue = result;
