@@ -1,38 +1,46 @@
-#!/bin/bash
+#!/data/data/com.termux/files/usr/bin/bash
+set -e
 
 REPO_URL="https://github.com/buithanhquang052008-cloud/roblox-rejoin"
 REPO_DIR="$HOME/roblox-rejoin"
-BIN="$PREFIX/bin/loader"
+BIN="/data/data/com.termux/files/usr/bin/loader"
 
-# Tạo lệnh loader
+echo "🚀 Roblox Rejoin Loader (FINAL)"
+
+# ===== TẠO LỆNH loader =====
 if [ ! -f "$BIN" ]; then
+  echo "[+] Cài lệnh loader"
   cp "$0" "$BIN"
   chmod +x "$BIN"
-  echo "✔ Đã tạo lệnh: loader"
+  echo "[✓] Gõ 'loader' để chạy lần sau"
 fi
 
-pkg install -y git nodejs sqlite coreutils tsu
+# ===== FIX dpkg kẹt =====
+dpkg --configure -a >/dev/null 2>&1 || true
 
+# ===== UPDATE + TOOL CƠ BẢN =====
+pkg update -y >/dev/null
+pkg install -y git nodejs sqlite tsu >/dev/null
+
+# ===== CLONE / UPDATE REPO =====
 if [ ! -d "$REPO_DIR/.git" ]; then
-  git clone "$REPO_URL" "$REPO_DIR" || exit 1
+  echo "[+] Clone repo"
+  git clone "$REPO_URL" "$REPO_DIR"
 else
-  cd "$REPO_DIR" && git pull
+  echo "[+] Update repo"
+  cd "$REPO_DIR"
+  git reset --hard
+  git pull
 fi
 
-cd "$REPO_DIR" || exit 1
-npm install
-
-echo "🔥 Chạy bằng root (tsu)"
-tsu node rejoin.cjs
 cd "$REPO_DIR"
 
-# 5️⃣ Cài node_modules
-if [ ! -d "node_modules" ]; then
-  echo "📦 npm install..."
-  npm install --no-audit --no-fund
+# ===== CÀI NODE MODULE =====
+if [ ! -d node_modules ]; then
+  echo "[+] npm install"
+  npm install
 fi
 
-# 6️⃣ Chạy tool (FIX LỖI rejoin.cjsnode)
-chmod +x rejoin.cjs
-echo "✅ Chạy rejoin.cjs"
-node rejoin.cjs
+# ===== CHẠY BẰNG ROOT =====
+echo "[✓] Chạy rejoin.cjs (root)"
+tsu node rejoin.cjs || node rejoin.cjs
