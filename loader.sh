@@ -10,22 +10,40 @@ echo "=============================="
 echo "  ROBLOX REJOIN LOADER (FIX)  "
 echo "=============================="
 
+# ---- KIỂM TRA TERMUX ----
+if [ -z "$PREFIX" ]; then
+  echo "[X] Script này chỉ chạy trên Termux"
+  exit 1
+fi
+
 # ---- TẠO LỆNH loader ----
 if [ ! -f "$BIN_PATH" ]; then
   echo "[+] Tạo lệnh loader..."
   cp "$0" "$BIN_PATH"
   chmod +x "$BIN_PATH"
-  echo "[✓] Gõ 'loader' để chạy lần sau"
+  echo "[✓] Dùng lệnh: loader"
 fi
 
-# ---- UPDATE TERMUX ----
+# ---- UPDATE ----
 echo "[+] Update packages..."
 pkg update -y >/dev/null
 
-# ---- CHECK GIT ----
+# ---- GIT ----
 if ! command -v git >/dev/null 2>&1; then
   echo "[+] Cài git..."
   pkg install git -y
+fi
+
+# ---- NODEJS ----
+if ! command -v node >/dev/null 2>&1; then
+  echo "[+] Cài NodeJS..."
+  pkg install nodejs -y
+fi
+
+# ---- SQLITE ----
+if ! command -v sqlite3 >/dev/null 2>&1; then
+  echo "[+] Cài sqlite..."
+  pkg install sqlite -y
 fi
 
 # ---- CLONE / UPDATE REPO ----
@@ -41,23 +59,14 @@ fi
 
 cd "$REPO_DIR"
 
-# ---- CHECK NODEJS ----
-if ! command -v node >/dev/null 2>&1; then
-  echo "[+] Cài NodeJS..."
-  pkg install nodejs -y
-fi
-
-# ---- CHECK SQLITE ----
-if ! command -v sqlite3 >/dev/null 2>&1; then
-  echo "[+] Cài sqlite..."
-  pkg install sqlite -y
-fi
-
-# ---- INSTALL NODE MODULES ----
-if [ ! -d "node_modules" ]; then
+# ---- NPM ----
+if [ -f package.json ] && [ ! -d node_modules ]; then
   echo "[+] npm install..."
   npm install
 fi
+
+# ---- EXPORT PATH (FIX sqlite3 not found) ----
+export PATH="$PREFIX/bin:$PATH"
 
 # ---- CHẠY TOOL ----
 echo "[✓] Chạy Roblox Rejoin Tool"
