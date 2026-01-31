@@ -3,14 +3,13 @@ set -e
 
 REPO_URL="https://github.com/buithanhquang052008-cloud/roblox-rejoin"
 REPO_DIR="$HOME/roblox-rejoin"
-BIN_PATH="/data/data/com.termux/files/usr/bin/loader"
+BIN_PATH="$PREFIX/bin/loader"
 
-clear
-echo "=============================="
-echo "  ROBLOX REJOIN LOADER (FIX)  "
-echo "=============================="
+echo "[*] Roblox Rejoin Loader (Termux)"
 
-# Tạo lệnh loader (chạy bằng chữ 'loader')
+# =========================
+# Tạo lệnh loader
+# =========================
 if [ ! -f "$BIN_PATH" ]; then
   echo "[+] Tạo lệnh loader..."
   cp "$0" "$BIN_PATH"
@@ -18,14 +17,24 @@ if [ ! -f "$BIN_PATH" ]; then
   echo "[✓] Gõ 'loader' để chạy lần sau"
 fi
 
-# Cài git
-if ! command -v git >/dev/null 2>&1; then
-  echo "[+] Cài git..."
-  pkg update -y
-  pkg install git -y
+# =========================
+# Update + package cơ bản
+# =========================
+pkg update -y
+pkg install -y git nodejs sqlite
+
+# =========================
+# FIX LỖI SQLITE3 (CỐT LÕI)
+# =========================
+# Termux chỉ có 'sqlite', không có 'sqlite3'
+if [ ! -f "$PREFIX/bin/sqlite3" ] && [ -f "$PREFIX/bin/sqlite" ]; then
+  echo "[+] Fix sqlite3 cho Termux..."
+  ln -sf "$PREFIX/bin/sqlite" "$PREFIX/bin/sqlite3"
 fi
 
+# =========================
 # Clone hoặc update repo
+# =========================
 if [ ! -d "$REPO_DIR/.git" ]; then
   echo "[+] Clone repo..."
   git clone "$REPO_URL" "$REPO_DIR"
@@ -38,24 +47,19 @@ fi
 
 cd "$REPO_DIR"
 
-# Cài Node.js
-if ! command -v node >/dev/null 2>&1; then
-  echo "[+] Cài Node.js..."
-  pkg install nodejs -y
-fi
+# =========================
+# Cài npm package
+# =========================
+echo "[+] npm install..."
+npm install
 
-# 🔥 AUTO CÀI SQLITE (FIX LỖI CHÍNH)
-if ! command -v sqlite3 >/dev/null 2>&1; then
-  echo "[+] Cài sqlite3..."
-  pkg install sqlite -y
-fi
+# =========================
+# Export sqlite bin cho Node
+# =========================
+export SQLITE_BIN=sqlite3
 
-# Cài node_modules
-if [ ! -d node_modules ]; then
-  echo "[+] npm install..."
-  npm install
-fi
-
+# =========================
 # Chạy tool
+# =========================
 echo "[✓] Chạy Roblox Rejoin Tool"
 node rejoin.cjs
