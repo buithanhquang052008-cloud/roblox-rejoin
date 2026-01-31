@@ -498,7 +498,9 @@ Timestamp: ${systemInfo.timestamp}
         console.error(`❌ [${packageName}] Lỗi khi query sqlite3: ${err.message}`);
         try {
   execSync(`rm -f "${sdcardPath}"`);
-} catch {} => {});
+} catch (e) {
+  // bỏ qua lỗi
+          }
         return null;
       }
       
