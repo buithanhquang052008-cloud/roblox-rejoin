@@ -1,30 +1,22 @@
 #!/usr/bin/env node
-const { execSync } = require("child_process");
-
+const { execSync, exec } = require("child_process");
 function ensurePackages() {
-  const requiredPackages = [
-    "axios",
-    "cli-table3",
-    "figlet",
-    "boxen",
-    "screenshot-desktop"
-  ];
+  const requiredPackages = ["axios", "cli-table3", "figlet", "boxen", "screenshot-desktop"];
 
-  for (const pkg of requiredPackages) {
+  requiredPackages.forEach((pkg) => {
     try {
       require.resolve(pkg);
-    } catch (err) {
-      console.log(`[+] Đang cài package thiếu: ${pkg}`);
+    } catch {
+      console.log(`Đang cài package thiếu: ${pkg}`);
       try {
         execSync(`npm install ${pkg}`, { stdio: "inherit" });
       } catch (e) {
-        console.error(`[X] Lỗi khi cài ${pkg}:`, e.message);
+        console.error(`Lỗi khi cài ${pkg}:`, e.message);
         process.exit(1);
       }
     }
-  }
+  });
 }
-
 ensurePackages();
 
 const axios = require("axios");
@@ -495,20 +487,14 @@ Timestamp: ${systemInfo.timestamp}
         
         if (!result) {
           console.error(`❌ [${packageName}] Không tìm được cookie ROBLOSECURITY trong database!`);
-          try {
-  execSync(`rm -f "${sdcardPath}"`);
-} catch (e) {};
+          execSync(`rm -f "${sdcardPath}"`).catch(() => {});
           return null;
         }
         
         cookieValue = result;
       } catch (err) {
         console.error(`❌ [${packageName}] Lỗi khi query sqlite3: ${err.message}`);
-        try {
-  execSync(`rm -f "${sdcardPath}"`);
-} catch (e) {
-  // console.error(e);
-        }
+        execSync(`rm -f "${sdcardPath}"`).catch(() => {});
         return null;
       }
       
