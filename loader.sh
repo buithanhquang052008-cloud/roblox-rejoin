@@ -1,6 +1,6 @@
 #!/bin/bash
 pkg(){ yes|command pkg "$@"; }
-R="https://github.com/rejoinrobloxd/roblox-rejoin";D="$HOME/roblox-rejoin";W="$D";L="/data/data/com.termux/files/usr/bin/loader"
+R="https://github.com/ryomolochiton/roblox-rejoin";D="$HOME/roblox-rejoin";W="$D";L="/data/data/com.termux/files/usr/bin/loader"
 [ ! -f "$L" ]&&cp "$0" "$L"&&chmod +x "$L"
 command -v git>/dev/null||{ pkg update;pkg install git||exit 1; }
 [ ! -d "$D/.git" ]&&git clone "$R" "$D"||{ cd "$D"||exit 1;git reset --hard;git pull; }
