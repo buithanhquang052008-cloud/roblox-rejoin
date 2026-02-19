@@ -91,51 +91,29 @@ class Utils {
     }
   }
 
+static async launch(placeId, linkCode = null, packageName) {
 
+  const url = linkCode
+    ? `roblox://placeID=${placeId}&linkCode=${linkCode}`
+    : `roblox://placeID=${placeId}`;
 
+  console.log(`[${packageName}] 🔥 Force stopping...`);
 
-  static async launch(placeId, linkCode = null, packageName) {
-    const url = linkCode
-      ? `roblox://placeID=${placeId}&linkCode=${linkCode}`
-      : `roblox://placeID=${placeId}`;
+  try { execSync(`am force-stop ${packageName}`); } catch {}
+  try { execSync(`am kill ${packageName}`); } catch {}
 
-    console.log(` [${packageName}] Đang mở: ${url}`);
-    if (linkCode) console.log(` [${packageName}] Đã join bằng linkCode: ${linkCode}`);
+  await new Promise(r => setTimeout(r, 2500));
 
+  const command = `am start -a android.intent.action.VIEW -d "${url}"`;
 
-    let activity;
-    const prefix = this.loadPackagePrefixConfig();
-    const customActivity = this.loadActivityConfig();
-
-
-    if (customActivity) {
-      activity = customActivity;
-      console.log(` [${packageName}] Sử dụng activity tùy chỉnh: ${activity}`);
-    } else {
-
-      if (packageName.startsWith(`${prefix}.client.`)) {
-
-
-        activity = `${prefix}.client.ActivityProtocolLaunch`;
-      } else if (packageName === `${prefix}.client`) {
-
-        activity = `${prefix}.client.ActivityProtocolLaunch`;
-      } else {
-
-        activity = `${prefix}.client.ActivityProtocolLaunch`;
-      }
-      console.log(` [${packageName}] Sử dụng activity mặc định: ${activity}`);
-    }
-
-    const command = `am start -n ${packageName}/${activity} -a android.intent.action.VIEW -d "${url}" --activity-clear-top`;
-
-    try {
-      execSync(command, { stdio: 'pipe' });
-      console.log(`[+] [${packageName}] Launch command executed!`);
-    } catch (e) {
-      console.error(`[-] [${packageName}] Launch failed: ${e.message}`);
-    }
+  try {
+    execSync(command);
+    console.log(`[+] [${packageName}] 💥 Force Rejoin OK`);
+  } catch (e) {
+    console.error(`Launch failed: ${e.message}`);
   }
+}
+    
 
   static ask(rl, msg) {
     return new Promise((r) => rl.question(msg, r));
