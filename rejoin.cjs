@@ -737,6 +737,7 @@ class GameSelector {
       "3": ["6284583030", "Pet-Simulator-X"],
       "4": ["1537690962", "Bee-Swarm-Simulator"],
       "5": ["16146832113", "Anime-Vanguards"],
+      "6": ["4520749081", "King-Legacy"],
       "0": ["custom", "Tùy chỉnh"],
     };
   }
