@@ -739,6 +739,7 @@ class GameSelector {
       "5": ["16146832113", "Anime-Vanguards"],
       "6": ["4520749081", "King-Legacy"],
       "7": ["4996049426", "All-Star-Tower-Defense"],
+      "8": ["77747658251236","Sailor-Piece"],
       "0": ["custom", "Tùy chỉnh"],
     };
   }
