@@ -734,7 +734,7 @@ class GameSelector {
     this.GAMES = {
       "1": ["126884695634066", "Grow-a-Garden"],
       "2": ["2753915549", "Blox-Fruits"],
-      "3": ["6284583030", "Pet-Simulator-X"],
+      "3": ["8737899170", "Pet-Simulator-99"],
       "4": ["1537690962", "Bee-Swarm-Simulator"],
       "5": ["16146832113", "Anime-Vanguards"],
       "6": ["4520749081", "King-Legacy"],
